@@ -1257,6 +1257,26 @@ func (cg *ConfigGenerator) generateServiceMonitorConfig(
 		sourceLabels = []string{"__meta_kubernetes_endpointslice_address_target_kind", "__meta_kubernetes_endpointslice_address_target_name"}
 	}
 
+	// Add temporary copies of original namespace, service, pod and container labels
+	relabelings = append(relabelings, []yaml.MapSlice{
+		{
+			{Key: "source_labels", Value: []string{"namespace"}},
+			{Key: "target_label", Value: "__tmp_original_namespace"},
+		},
+		{
+			{Key: "source_labels", Value: []string{"service"}},
+			{Key: "target_label", Value: "__tmp_original_service"},
+		},
+		{
+			{Key: "source_labels", Value: []string{"pod"}},
+			{Key: "target_label", Value: "__tmp_original_pod"},
+		},
+		{
+			{Key: "source_labels", Value: []string{"container"}},
+			{Key: "target_label", Value: "__tmp_original_container"},
+		},
+	}...)
+
 	// Relabel namespace and pod and service labels into proper labels.
 	relabelings = append(relabelings, []yaml.MapSlice{
 		{ // Relabel node labels with meta labels available with Prometheus >= v2.3.
